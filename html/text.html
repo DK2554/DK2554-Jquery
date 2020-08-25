@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/js/jquery-3.5.1.min.js"></script>
+    <title>Document</title>
+    <script>
+      function addbutton() {
+        var add = $("#container").clone();
+        $("#container").after(add);
+      }
+      function removebutton() {
+        console.log($("body>div").length);
+        if ($("body>div").length != 1) {
+          var rm = $("#container").remove();
+        }
+      }
+      var tt = $(".tr").length;
+      console.log(tt);
+    </script>
+  </head>
+  <body>
+    <div
+      id="container"
+      style="width: 200px; height: 200px; background-color: orangered;"
+    >
+      <button onclick="addbutton();">복사하기</button>
+      <button onclick="removebutton();">삭제하기</button>
+    </div>
+    <table border="1px soild black">
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+      </tr>
+      <tr class="tr">
+        <td>1</td>
+        <td>첫 번째 게시물 입니다</td>
+        <td>홍길동</td>
+      </tr>
+      <tr class="tr">
+        <td>2</td>
+        <td>두 번째 게시물 입니다</td>
+        <td>홍길동</td>
+      </tr>
+      <tr class="tr">
+        <td>3</td>
+        <td>세 번째 게시물 입니다</td>
+        <td>홍길동</td>
+      </tr>
+    </table>
+    <div id="tbcontain"><span>선택한 게시물://</span></div>
+  </body>
+</html>

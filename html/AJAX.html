@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/js/jquery-3.5.1.min.js"></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <h1>도서검색 api 연습</h1>
+      <hr />
+      <select name="" id="" class="searchType">
+        <option value="title">제목</option>
+        <option value="person">작가</option>
+        <option value="publisher">출판사</option>
+        <option value="isbn">ISBN</option>
+      </select>
+      <select id="sortType"
+        ><option value="accuracy">정확도순</option>
+        <option value="recency">최근순</option>
+      </select>
+      <input
+        type="text"
+        name=""
+        id="search"
+        placeholder="검색어를 입력하세요"
+      />
+      <button id="searchBtn">검색하기</button>
+
+      <select name="" id="pagecount"
+        ><option value="10">10개</option>
+        <option value="25">25개</option>
+        <option value="50">50개</option></select
+      >
+    </div>
+    <div class="none" style="display: none;">검색된결과가 없습니다</div>
+    <table id="contents" border="1" style="display: none;">
+      <thead>
+        <tr>
+          <td>번호</td>
+          <td>제목</td>
+          <td>작가</td>
+          <td>표지</td>
+          <td>가격</td>
+          <td>구매하기</td>
+        </tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+    <br />
+    <div id="buttonWrapper" style="display: none;">
+      <button class="prev">이전페이지</button>
+      <button class="next">다음페이지</button>
+    </div>
+    <script>
+      $(function () {
+        var pageNo = 1;
+        var isEnd = null;
+        //매개변수로 눌린 키가 들어간다.
+        $("#search").keydown(function (key) {
+          //엔터의 키코드는 13번
+          if (key.keyCode == 13) {
+            $("#searchBtn").click();
+            //searchBook();
+          }
+        });
+
+        //버튼이 눌리면 searchBook을 홓출해라
+        $("#searchBtn").click(function () {
+          pageNo = 1;
+
+          if ($("#search").val() === "") {
+            alert("검색어를 입력해주세여");
+          } else {
+            searchBook(pageNo);
+          }
+        });
+
+        //온로드 페이지가 로딩이 다 되면
+        function searchBook(pageNo) {
+          $("#body").html("");
+          $(".none").css({ display: "none " });
+          $.ajax({
+            method: "GET",
+            url: "https://dapi.kakao.com/v3/search/book",
+            data: {
+              query: $("#search").val(),
+              page: pageNo,
+              size: $("#pagecount").val(),
+              sort: $("#sortType").val(),
+              target: $("#searchType").val(),
+            },
+            headers: {
+              Authorization: "KakaoAK 60190923e861e9a7a7ddf4f968316201",
+            },
+          }).done(function (msg) {
+            //정삭적으로 실행하면
+            //done .ajax가 완료가 되면 done을 실행
+            console.log(msg);
+            if (msg.documents.length > 0) {
+              $("#contents").css({ display: "table" });
+              $("#buttonWrapper").css({ display: "block", margin: "0 auto" });
+              isEnd = msg.meta.is_end;
+              for (let i = 0; i < msg.documents.length; i++) {
+                $("#body").append(
+                  "<tr id=trow" + i + "><td>" + (i + 1) + "</td>"
+                );
+                $("#trow" + i).append(
+                  "<td class='title'>" + msg.documents[i].title + "</td>"
+                );
+                $("#trow" + i).append(
+                  "<td class='authors'>" + msg.documents[i].authors + "</td>"
+                );
+                if (msg.documents[i].thumbnail == "") {
+                  $("#trow" + i).append(
+                    "<td><span>이미지가 없습니다</span></td>"
+                  );
+                } else {
+                  $("#trow" + i).append(
+                    "<td ><img class='thumbnails' src='" +
+                      msg.documents[i].thumbnail +
+                      "'></td>"
+                  );
+                }
+                $("#trow" + i).append(
+                  "<td class='price'>" + msg.documents[i].price + "</td>"
+                );
+                $("#trow" + i).append(
+                  "<td><a href='" +
+                    msg.documents[i].url +
+                    "'><button>구매하기</button></td></tr>"
+                );
+              }
+            } else {
+              $("#contents").css({ display: "none " });
+              $("#buttonWrapper").css({ display: "none" });
+              $(".none").css({ display: "block " });
+            }
+          });
+        }
+        $(".next").click(function () {
+          if (isEnd == true) {
+            alert("마지막 페이지 입니다.");
+          } else {
+            searchBook(++pageNo);
+          }
+        });
+        $(".prev").click(function () {
+          if (pageNo == 1) {
+            alert("첫번째 페이지 입니다");
+          } else {
+            searchBook(--pageNo);
+          }
+        });
+        $("#pagecount").change(function () {
+          searchBook(pageNo);
+        });
+      });
+    </script>
+  </body>
+</html>
